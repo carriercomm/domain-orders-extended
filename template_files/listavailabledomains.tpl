@@ -26,7 +26,7 @@
                             <span class="label label-success domainStatusInfo">{$lang->_('Available')}</span>
                             {assign var=$availableDomains value=$availableDomains++}
                             {else}
-                            <span class="label label-danger domainStatusInfo">{$domain.result}</span>
+                            <span class="label label-danger domainStatusInfo">{$lang->_($domain.result)}</span>
                             {/if}
                         </td>
                         <td>

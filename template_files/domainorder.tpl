@@ -2,7 +2,8 @@
 <script type="text/javascript">
     var TLDsConfig = {
         noRedirectAfterLookup: {/literal}{if $noRedirectAfterLookup == 1}true{else}false{/if}{literal},
-        enableMultipleDomainSearch: {/literal}{if $enableMultipleDomainSearch == 1}true{else}false{/if}{literal}
+        enableMultipleDomainSearch: {/literal}{if $enableMultipleDomainSearch == 1}true{else}false{/if}{literal},
+        sortTldsVertically: {/literal}{if $sortTldsVertically == 1}true{else}false{/if}{literal}
     };
 </script>
 {/literal}
@@ -13,7 +14,7 @@
         <div id="tldOrderFirstStep">
             <p class="lead">{$lang->_('Please enter desired domain names')}</p>
             <div class="form-group">
-                <input class="form-control input-lg" id="domainField" name="domain" type="text" {if $enableMultipleDomainSearch != 1} placeholder="{$lang->_('eg. mydomain')}" {else} placeholder="{$lang->_('eg. mydomain,another')}" {/if} >
+                <input class="form-control input-lg" id="domainField" value="{$domainName}" name="domain" type="text" {if $enableMultipleDomainSearch != 1} placeholder="{$lang->_('eg. mydomain')}" {else} placeholder="{$lang->_('eg. mydomain,another')}" {/if} >
                 <p class="help-block">{$lang->_('Choose at least one TLD to order')}</p>    
             </div>
             <hr>           
@@ -26,7 +27,7 @@
                   </div>
               </div>
               <ul class="list-group">
-                <li class="list-group-item"><span class="badge">{$categoriesCount->total}</span> <a href="orderdomain.php?action=showDomainsFromCategory&catid=all" class="loadDomainsForCategory" data-category="all">All Categories</a></li>
+                <li class="list-group-item"><span class="badge">{$categoriesCount->total}</span> <a href="orderdomain.php?action=showDomainsFromCategory&catid=all" class="loadDomainsForCategory" data-category="all">{$lang->_('All Categories')}</a></li>
                 {foreach from=$categories item=category}
                 {if $category->parent_id eq 0}
                 {if $category->assigned_domains_to_parent neq 0}
@@ -43,23 +44,38 @@
         <div class="col-md-8">
             <div class="tab-content" id="tldsContentContainer">                        
                 <p id="noDomainsInfoBox" class="alert alert-warning subhide"><span class="icon icon-warning-sign icon-white"></span> {$lang->_('This category has no available domains')}</p>
-
-                <div class="col-md-2" id="toggleAllTLDCheck">
-                    <label class="domainLabel"><input type="checkbox" value="" class="indeterminate selectAll"> <span class="domainName">{$lang->_('All')}</span></label>
-                </div>
-                {foreach from=$domains item=domain}
-                <div class="col-md-2" data-extension="{$domain->extension}" data-category="{$domain->category}" data-categoryID="{$domain->categoryID}" data-parentID="{$domain->parentID}">
-                    <label class="domainLabel"><input type="checkbox" name="tld[]" value="{$domain->extension}" class="tldInput" style="display: inline;"> <span class="domainName">{$domain->extension}</span></label>
-                </div>    
-                {/foreach}
+                {if $sortTldsVertically}
+                <ul class="tldsVertically">
+                    <li style="display: inline-block;" > 
+                        {/if}
+                        <div class="col-md-2" id="toggleAllTLDCheck">
+                            <label class="domainLabel {if $sortTldsVertically}tldDiv{/if}"><input type="checkbox" value="" class="indeterminate selectAll"> <span class="domainName">{$lang->_('All')}</span></label>
+                        </div> 
+                        {if $sortTldsVertically}    
+                    </li>
+                    {/if}
+                    {foreach from=$domains item=domain}
+                    {if $sortTldsVertically}
+                    <li style="display: inline-block;" class="tldDiv" data-extension="{$domain.extension}" data-category="{$domain.category}" data-categoryID="{$domain.categoryID}" data-parentID="{$domain.parentID}">
+                        {/if}
+                        <div class="col-md-2 tldDiv" data-extension="{$domain.extension}" data-category="{$domain.category}" data-categoryID="{$domain.categoryID}" data-parentID="{$domain.parentID}">
+                            <label class="domainLabel {if $sortTldsVertically}tldDiv{/if}"><input type="checkbox" name="tld[]" value="{$domain.extension}" class="tldInput" style="display: inline;"> <span class="domainName">{$domain.extension}</span></label>
+                        </div> 
+                        {if $sortTldsVertically}  
+                    </li>
+                    {/if}
+                    {/foreach}
+                    {if $sortTldsVertically}
+                </ul>
+                {/if}
             </div>
         </div>
     </div>
     <hr>
-            <div class="form-group pull-right">
-            <button type="submit" {if $enableMultipleDomainSearch != 1}class="btn btn-default btn-lg tldFormCheckAvailabilityOne"{else}class="btn btn-default btn-lg tldFormCheckAvailability"{/if}> {$lang->_('Check Availability')}</button>
-            </div>
-        </div>
+    <div class="form-group pull-right">
+        <button type="submit" {if $enableMultipleDomainSearch != 1}class="btn btn-default btn-lg tldFormCheckAvailabilityOne"{else}class="btn btn-default btn-lg tldFormCheckAvailability"{/if}> {$lang->_('Check Availability')}</button>
+    </div>
+</div>
 </form> 
 </div>
 <div id="tldOrderSecondStepPreloader">   
