@@ -6,10 +6,11 @@ var TLDsFormOrder =
    directFrom : false,
    initInputs : function() 
    {
-        //alert(TLDsConfig.enableMultipleDomainSearch);
+        //console.log(TLDsConfig.enableMultipleDomainSearch);
+        //console.log(TLDsConfig);
         if (typeof TLDsConfig != 'undefined'){
-            if(TLDsConfig.enableMultipleDomainSearch == true)
-            {
+             if(TLDsConfig.enableMultipleDomainSearch == true)
+             {
                 if($('#domainField').length)
                    {
                        $('#domainField').tagsinput({
@@ -22,7 +23,7 @@ var TLDsFormOrder =
                            $(this).val('');
                         });
                    }
-            }
+             }
         }
 
        $('.tldInput').on('click', function()
@@ -211,7 +212,7 @@ var TLDsFormOrder =
                     url:'orderdomain.php?action=checkAvailabilityOne', 
                     dataType:'json', 
                     data: 'domain='+arr[0]+'&tld='+'.'+arr[1]+data,
-                    timeout: 18000, 
+                    timeout: 20000, //20 sec
                     async: true,
                     cache: false,
                     success:function(result){
@@ -260,10 +261,11 @@ var TLDsFormOrder =
 
         $('#tldMessagesContainer').html('');
 
-        this.showPreloader('tldOrderSecondStepPreloader');
+        var preloaderMsg = TLDsFormOrder.getClientAreaLang('Please Wait, Loading...');
+        this.showPreloader('tldOrderSecondStepPreloader', preloaderMsg );
         
-        $('#tldOrderSecondStep').html('');
-        $('#tldOrderSecondStep').show();
+        $('#tldOrderSecondStep').empty();
+        $('#tldOrderSecondStep').removeClass('subhide');
         var totalprice=0;
         $.ajax({
             url:'orderdomain.php?action=showDomains',
@@ -281,6 +283,7 @@ var TLDsFormOrder =
                     $self.errorMessage(result.error);
                 } else {
                     $('#tldOrderSecondStepPreloader').hide();
+                    $('#tldOrderSecondStep').empty();
                     $('#tldOrderSecondStep').show();
                     $('#tldOrderSecondStep').html(result.html);
                     $('#toCartButton').hide();
@@ -298,12 +301,14 @@ var TLDsFormOrder =
                           }
                           
                     });
-                    $.getJSON('orderdomain.php?action=showSpinner', {'domains': $domains, 'tlds':$tlds, 'nousedomains' : $domains}, function(result) {
-                          if (typeof result.error == 'undefined') {
-                                $('#tldOrderSpinner').show();
-                                $('#tldOrderSpinner').html(result.html);
-                          }
-                    });
+                    if (result.module != 'DefaultChecker'){
+                        $.getJSON('orderdomain.php?action=showSpinner', {'domains': $domains, 'tlds':$tlds, 'nousedomains' : $domains}, function(result) {
+                              if (typeof result.error == 'undefined') {
+                                    $('#tldOrderSpinner').show();
+                                    $('#tldOrderSpinner').html(result.html);
+                              }
+                        });
+                    }
                 }
             }
         });  
@@ -318,8 +323,9 @@ var TLDsFormOrder =
         element.prop('disabled', 'disabled');
         
         $('#tldMessagesContainer').html('');
-
-        this.showPreloader('tldOrderSecondStepPreloader');
+        
+        var preloaderMsg = TLDsFormOrder.getClientAreaLang('Please Wait, Loading...');
+        this.showPreloader('tldOrderSecondStepPreloader', preloaderMsg );
 
         //prepare for post
         var alltld = [];
@@ -353,6 +359,7 @@ var TLDsFormOrder =
         $('#tldFirstStep').on('submit', function(e)
         {
             $('.tldFormCheckAvailability').prop('disabled', false);
+            $('#tldOrderSecondStep').empty();
             $('#tldOrderSecondStep').removeClass('subhide');
             
             if(TLDsConfig.noRedirectAfterLookup == true)
@@ -368,12 +375,28 @@ var TLDsFormOrder =
                     });
                    TLDsFormOrder.scrollTo('#tldOrderSecondStep');
                    
-                   $('#tldsSelectContainer').html(result.html);
+                   // $('#tldsSelectContainer').html(result.html);
+                   $('#tldOrderSecondStep').html(result.html);
                });
                
                e.preventDefault();
             }
         });
+   },
+   getClientAreaLang : function(string){
+        var dataToReturn = ""; 
+        $.ajax({
+            url: 'orderdomain.php?action=getClientAreaLang',
+            dataType: 'json',
+            data: {string: string},
+            async:false,
+            success: function(result){
+              //console.log(result);
+              //console.log('inside ajax: '+result.translation);
+              dataToReturn = result.translation;
+            }
+        });
+        return dataToReturn;
    },
    scrollTo : function(element)
    {
@@ -419,6 +442,17 @@ var TLDsFormOrder =
         else
             return results[1];
     },
+    eraseDuplicatedDomains : function () { 
+        var arr = [];
+        $('div.tldDiv:visible').each(function(){
+            var $that = $(this);
+            if ( $.inArray($that.data('extension'), arr) != -1 ){
+                $that.hide();
+            } else {
+                arr.push( $that.data('extension') );
+            }
+        });
+    },
 };
 
 $(function()
@@ -438,10 +472,11 @@ $(function()
         TLDsFormOrder.calculateCost();
         //TLDsFormOrder.displayToCart();
     }).ready(function(){
-      if (TLDsFormOrder.getParameterValueFromUrl('directForm', window.location.href) !== null){
+        if (TLDsFormOrder.getParameterValueFromUrl('directForm', window.location.href) !== null){
             TLDsFormOrder.directForm = true;
             TLDsFormOrder.checkAvailabilityOne($(this));
         }
+        TLDsFormOrder.eraseDuplicatedDomains();
     });
     
     $('.tldPushDomain').on('click', function(e)
@@ -454,6 +489,7 @@ $(function()
     $('.loadDomainsForCategory').on('click', function(e)
     {
         TLDsFormOrder.loadDataForCategory($(this).attr('data-category'), $(this).attr('data-parent'));
+        TLDsFormOrder.eraseDuplicatedDomains();
         e.preventDefault(); 
     });
     
