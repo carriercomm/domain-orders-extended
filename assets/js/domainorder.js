@@ -122,7 +122,7 @@ var TLDsFormOrder =
        {
            $('#noDomainsInfoBox').addClass('subhide');
            $('#toggleAllTLDCheck').show();
-           $('[data-categoryID]').show(); //show all tlds
+           $('[data-categoryID]:not(.skipInSearchAll)').show(); //show all tlds
            $('[data-parentcategory]').hide(); //hide all subcategories
            $('.selectAll').removeAttr('checked');
        }

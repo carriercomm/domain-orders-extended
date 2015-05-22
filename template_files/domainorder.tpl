@@ -56,9 +56,9 @@
                     {/if}
                     {foreach from=$domains item=domain}
                     {if $sortTldsVertically}
-                    <li style="display: inline-block;" class="tldDiv" data-extension="{$domain.extension}" data-category="{$domain.category}" data-categoryID="{$domain.categoryID}" data-parentID="{$domain.parentID}">
+                    <li style="display: inline-block;" class="tldDiv {if $domain.doubled}skipInSearchAll{/if}" data-extension="{$domain.extension}" data-category="{$domain.category}" data-categoryID="{$domain.categoryID}" data-parentID="{$domain.parentID}">
                         {/if}
-                        <div class="col-md-2 tldDiv" data-extension="{$domain.extension}" data-category="{$domain.category}" data-categoryID="{$domain.categoryID}" data-parentID="{$domain.parentID}">
+                        <div class="col-md-2 tldDiv {if $domain.doubled}skipInSearchAll{/if}" data-extension="{$domain.extension}" data-category="{$domain.category}" data-categoryID="{$domain.categoryID}" data-parentID="{$domain.parentID}">
                             <label class="domainLabel {if $sortTldsVertically}tldDiv{/if}"><input type="checkbox" name="tld[]" value="{$domain.extension}" class="tldInput" style="display: inline;"> <span class="domainName">{$domain.extension}</span></label>
                         </div> 
                         {if $sortTldsVertically}  

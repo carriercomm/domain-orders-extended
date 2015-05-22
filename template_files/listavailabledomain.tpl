@@ -30,7 +30,7 @@
 	<select name="domainreperiod[{$domain}{$tld}]" class="calculateSummary form-control input-sm">
 		{if $prices}
 		{foreach from=$prices key=period item=price}  
-		<option value="{$period}" data-price="{$price.register}">{$period} Year   - {$currency.prefix} {$price.register} {$currency.suffix}
+		<option value="{$period}" data-price="{$price.register}">{$period} {$lang->_('Year')} - {$currency.prefix} {$price.register} {$currency.suffix}
 		</option>  
 		{/foreach}
 		{else}
